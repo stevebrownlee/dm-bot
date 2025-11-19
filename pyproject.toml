@@ -1,0 +1,15 @@
+[project]
+name = "dungeon-master-bot"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic",
+    "ollama",
+    "pydantic-ai",
+]
+
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+]
