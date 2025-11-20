@@ -515,7 +515,7 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Initialize Pipfile with dependencies
 - Install core dependencies: `pydantic-ai`, `pydantic`, `ollama-python`
 - Activate virtual environment (`pipenv shell`)
-- Status: 🔄 IN PROGRESS
+- Status: ✅ COMPLETED
 
 **Task 1.4: Create Project Structure**
 - Create main directory: `dungeon-master-bot/`
@@ -523,7 +523,7 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Create empty files: `dm_bot.py`, `models.py`, `tools.py`, `game_state.py`, `history_processors.py`
 - Create test files: `tests/test_tools.py`, `tests/test_game_state.py`, `tests/test_agent.py`
 - Dependencies: Task 1.3
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 ### Phase 2: Core Data Models (models.py)
 
@@ -533,21 +533,21 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Add field validators for health constraints
 - Include type hints for all fields
 - Dependencies: Task 1.4
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 2.2: Define World State Model**
 - Create `WorldState` class using Pydantic `BaseModel`
 - Fields: location (str), time_of_day (str), weather (Optional[str])
 - Add descriptive field descriptions
 - Dependencies: Task 2.1
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 2.3: Define Dice Roll Model**
 - Create `DiceRoll` class using Pydantic `BaseModel`
 - Fields: sides (int), count (int), total (int), individual_rolls (list[int])
 - Add validator to ensure total matches sum of individual_rolls
 - Dependencies: Task 2.2
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 2.4: Define Game State Output Model**
 - Create `GameState` class using Pydantic `BaseModel`
@@ -555,14 +555,14 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Add `field_validator` for narrative urgency based on health
 - Add comprehensive field descriptions for LLM guidance
 - Dependencies: Task 2.3
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 2.5: Define Game Dependencies Dataclass**
 - Create `GameDependencies` dataclass
 - Fields: player_stats (PlayerStats), world_state (WorldState)
 - Add type hints for dependency injection
 - Dependencies: Task 2.4
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 2.6: Write Tests for Models**
 - Test PlayerStats validation (health bounds, required fields)
@@ -571,7 +571,7 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Test GameState narrative validator
 - Run tests: `pytest tests/test_models.py -v`
 - Dependencies: Task 2.5
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 ### Phase 3: Tool Functions (tools.py)
 
@@ -582,7 +582,7 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Add comprehensive docstring (shown to LLM)
 - Implement random dice rolling logic
 - Dependencies: Task 2.6
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 3.2: Implement Combat Tool**
 - Create `calculate_damage` function
@@ -592,7 +592,7 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Return damage amount
 - Add detailed docstring
 - Dependencies: Task 3.1
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 3.3: Implement Inventory Tool**
 - Create `manage_inventory` function
@@ -601,7 +601,7 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Update player_stats with inventory changes
 - Return success/failure message
 - Dependencies: Task 3.2
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 3.4: Implement Health Management Tool**
 - Create `update_health` function
@@ -610,7 +610,7 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Update player_stats.health
 - Return new health value
 - Dependencies: Task 3.3
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 **Task 3.5: Write Tool Unit Tests**
 - Test `roll_dice` with various sides and counts
@@ -619,7 +619,7 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Test `update_health` boundary conditions
 - Run tests: `pytest tests/test_tools.py -v`
 - Dependencies: Task 3.4
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 ### Phase 4: Message History Management (history_processors.py)
 
@@ -649,39 +649,62 @@ This section provides a comprehensive, step-by-step implementation guide for bui
 - Test that ToolReturnPart detection works correctly
 - Run tests: `pytest tests/test_history.py -v`
 - Dependencies: Task 4.1
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
 ### Phase 5: Game State Persistence (game_state.py)
 
-**Task 5.1: Implement Game State Serialization**
+**ARCHITECTURAL DECISION:** Using SQLite database (`game-state.sqlite3`) instead of JSON files for better scalability, query performance, and data integrity with conversation history growth.
+
+**Task 5.1: Create SQLite Database Schema**
+- Create `init_database` function to initialize `game-state.sqlite3` in project root
+- Define schema with tables:
+  - `game_sessions` (id, session_id TEXT UNIQUE, created_at, last_updated)
+  - `player_stats` (id, session_id FK, name, health, max_health, level, inventory TEXT as JSON)
+  - `world_state` (id, session_id FK, location, time_of_day, weather)
+  - `message_history` (id, session_id FK, message_index INTEGER, message_data TEXT as JSON)
+- Add indexes for efficient queries (session_id, message_index)
+- Use Python's built-in `sqlite3` module (no additional dependencies)
+- Dependencies: Task 4.3
+- Status: ✅ COMPLETED
+
+**Task 5.2: Implement Game State Serialization to SQLite**
 - Create `save_game` function
-- Convert GameState to JSON using `to_jsonable_python`
-- Save message history to file
-- Save player stats and world state
-- Dependencies: Task 4.4
-- Status: ⏸️ PENDING
-
-**Task 5.2: Implement Game State Loading**
-- Create `load_game` function
-- Read JSON file
-- Restore message history using `ModelMessagesTypeAdapter`
-- Recreate GameDependencies from saved data
+- Convert message history to JSON using `to_jsonable_python`
+- Insert/update game session record with timestamp
+- Save player stats to `player_stats` table
+- Save world state to `world_state` table
+- Save message history to `message_history` table (batch insert for efficiency)
+- Use transactions for atomicity
 - Dependencies: Task 5.1
-- Status: ⏸️ PENDING
+- Status: ✅ COMPLETED
 
-**Task 5.3: Implement Auto-Save Functionality**
-- Create `auto_save` function triggered after each turn
-- Generate unique session IDs
-- Save to `saved_games/session_{id}.json`
+**Task 5.3: Implement Game State Loading from SQLite**
+- Create `load_game` function accepting session_id
+- Query game session, player stats, and world state
+- Load message history ordered by message_index
+- Restore message history using `ModelMessagesTypeAdapter`
+- Recreate GameDependencies from loaded data
+- Handle missing sessions gracefully
 - Dependencies: Task 5.2
+- Status: ✅ COMPLETED
+
+**Task 5.4: Implement Auto-Save Functionality**
+- Create `auto_save` function triggered after each turn
+- Generate unique session IDs using UUID
+- Automatically call `save_game` with session context
+- Update `last_updated` timestamp on each save
+- Dependencies: Task 5.3
 - Status: ⏸️ PENDING
 
-**Task 5.4: Write Persistence Tests**
-- Test save/load cycle preserves state
-- Test message history restoration
-- Test file creation in correct directory
+**Task 5.5: Write Persistence Tests**
+- Test database initialization creates all tables
+- Test save/load cycle preserves complete state
+- Test message history ordering and restoration
+- Test session querying and listing
+- Test concurrent access (if needed)
+- Test error handling for corrupted data
 - Run tests: `pytest tests/test_game_state.py -v`
-- Dependencies: Task 5.3
+- Dependencies: Task 5.4
 - Status: ⏸️ PENDING
 
 ### Phase 6: Main Agent Implementation (dm_bot.py)
