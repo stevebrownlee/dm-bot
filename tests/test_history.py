@@ -1,6 +1,6 @@
-from pydantic_ai import ModelMessage, UserPromptPart, ModelRequest, SystemPromptPart, TextPart
+from pydantic_ai import ModelMessage, UserPromptPart, ModelRequest, SystemPromptPart, TextPart, RetryPromptPart
 from pydantic_ai.messages import ToolReturnPart, ToolCallPart
-from history_processors import dm_history_processor, summarize_old_messages
+from history_processors import dm_history_processor, summarize_old_messages, filter_retry_prompts
 
 def create_mock_message(content: str) -> ModelMessage:
     """Create a simple user message."""
@@ -140,6 +140,74 @@ def test_dm_processor_keeps_recent_messages():
             if found:
                 break
         assert found, f"Message {msg_number} not found in processed history"
+
+def test_dm_processor_no_longer_filters():
+    """History processor should NOT filter messages - it's called during execution.
+
+    Filtering is now done separately via filter_retry_prompts() after agent.run() completes.
+    """
+    messages = [
+        create_mock_message("User: Look around"),
+        create_mock_message("Agent response 1"),
+        # Retry prompts are no longer filtered by dm_history_processor
+        ModelRequest(
+            parts=[RetryPromptPart(content="{'type': 'json_invalid', 'loc': (), 'msg': 'Invalid JSON'}")],
+            run_id="retry-1"
+        ),
+        create_mock_message("User: Go through the archway"),
+    ]
+
+    processed = dm_history_processor(messages)
+
+    # History processor should NOT filter - it returns all messages
+    assert len(processed) == 4  # All messages preserved
+
+def test_filter_retry_prompts():
+    """filter_retry_prompts() should remove RetryPromptPart messages."""
+    messages = [
+        create_mock_message("User: Look around"),
+        create_mock_message("Agent response 1"),
+        # This retry prompt should be filtered
+        ModelRequest(
+            parts=[RetryPromptPart(content="{'type': 'json_invalid', 'loc': (), 'msg': 'Invalid JSON'}")],
+            run_id="retry-1"
+        ),
+        create_mock_message("User: Go through the archway"),
+    ]
+
+    filtered = filter_retry_prompts(messages)
+
+    # Should not contain any RetryPromptPart messages
+    has_retry = any(
+        any(isinstance(part, RetryPromptPart) for part in msg.parts)
+        for msg in filtered
+    )
+    assert not has_retry, "RetryPromptPart should be filtered out"
+
+    # Should have 3 messages (retry removed)
+    assert len(filtered) == 3
+
+def test_dm_processor_handles_mixed_message_types():
+    """Should correctly handle a mix of user prompts, system prompts, and tool returns."""
+    messages = [
+        create_mock_message("User message 1"),
+        create_system_message("System instruction"),
+        create_mock_message("User message 2"),
+        create_tool_return_message("test_tool", "result"),
+        create_mock_message("User message 3"),
+    ]
+
+    processed = dm_history_processor(messages)
+
+    # All these messages should be preserved (no retries to filter)
+    assert len(processed) == 5
+
+    # Verify tool return is still present
+    has_tool_return = any(
+        any(isinstance(part, ToolReturnPart) for part in msg.parts)
+        for msg in processed
+    )
+    assert has_tool_return
 
 # ============================================
 # Tests for summarize_old_messages

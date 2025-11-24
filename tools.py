@@ -1,8 +1,9 @@
 import random
 from pydantic_ai import RunContext
 from models import DiceRoll, GameDependencies
+from dm_bot import dm_agent
 
-# @dm_agent.tool
+@dm_agent.tool
 def roll_dice(ctx: RunContext[GameDependencies], sides: int, count: int = 1) -> DiceRoll:
     """
     Simulate rolling dice and return the results.
@@ -25,7 +26,7 @@ def roll_dice(ctx: RunContext[GameDependencies], sides: int, count: int = 1) -> 
         individual_rolls=individual_rolls
     )
 
-# @dm_agent.tool
+@dm_agent.tool
 def calculate_damage(
     ctx: RunContext[GameDependencies],
     attack_roll: int,
@@ -60,7 +61,7 @@ def calculate_damage(
         "message": message
     }
 
-# @dm_agent.tool  # Will be enabled in Phase 6
+@dm_agent.tool  # Will be enabled in Phase 6
 def manage_inventory(
     ctx: RunContext[GameDependencies],
     action: str,
@@ -103,7 +104,7 @@ def manage_inventory(
     else:
         return f"Invalid action '{action}'. Use 'add', 'remove', or 'check'."
 
-# @dm_agent.tool  # Will be enabled in Phase 6
+@dm_agent.tool  # Will be enabled in Phase 6
 def update_health(
     ctx: RunContext[GameDependencies],
     change: int

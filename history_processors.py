@@ -1,8 +1,8 @@
 from pydantic_ai import (
     ModelMessage, UserPromptPart, ModelRequest,
-    SystemPromptPart, TextPart
+    SystemPromptPart, TextPart, RetryPromptPart
 )
-from pydantic_ai.messages import ToolReturnPart
+from pydantic_ai.messages import ToolReturnPart, ToolCallPart
 
 
 def summarize_old_messages(messages: list[ModelMessage], limit: int = 20) -> list[ModelMessage]:
@@ -44,15 +44,21 @@ def summarize_old_messages(messages: list[ModelMessage], limit: int = 20) -> lis
 
 
 def dm_history_processor(messages: list[ModelMessage]) -> list[ModelMessage]:
-    """Keep recent conversation turns (user message + agent response as units)."""
+    """Keep recent conversation turns with tool pair preservation.
 
+    This processor:
+    - Limits to last 20 messages for token efficiency
+    - Preserves tool call/return pairs
+
+    NOTE: Do NOT filter messages here! The processor is called during agent
+    execution and must maintain proper message structure for Pydantic AI.
+    """
+    # Apply length limit only
     if len(messages) <= 20:
         return messages
 
-    # Keep last 20 messages, but adjust to safe boundary
+    # Keep last 20 messages, ensuring tool pairs stay together
     target_length = 20
-
-    # Work backwards from the end
     safe_messages = []
     i = len(messages) - 1
 
@@ -62,10 +68,65 @@ def dm_history_processor(messages: list[ModelMessage]) -> list[ModelMessage]:
 
         # If we added a tool return, make sure we include its call
         if i > 0 and any(isinstance(part, ToolReturnPart) for part in msg.parts):
-            # Add the previous message (should be the tool call)
             safe_messages.insert(0, messages[i-1])
             i -= 1
 
         i -= 1
 
     return safe_messages
+
+
+def filter_retry_prompts(messages: list[ModelMessage]) -> list[ModelMessage]:
+    """Filter out RetryPromptPart messages from completed agent runs.
+
+    Use this AFTER agent.run() completes, not during execution.
+    """
+    return [
+        msg for msg in messages
+        if not any(isinstance(part, RetryPromptPart) for part in msg.parts)
+    ]
+
+
+def filter_incomplete_tool_sequences(messages: list[ModelMessage]) -> list[ModelMessage]:
+    """Filter out incomplete tool call sequences that don't have final responses.
+
+    A complete sequence is: ToolCallPart -> ToolReturnPart -> TextPart (final response)
+    Incomplete sequences cause "invalid message content type" errors from the model.
+    """
+    filtered = []
+    i = 0
+
+    while i < len(messages):
+        msg = messages[i]
+
+        # Check if this is a tool call
+        if any(isinstance(part, ToolCallPart) for part in msg.parts):
+            # Look ahead for the complete sequence: ToolCall -> ToolReturn -> TextPart
+            has_complete_sequence = False
+
+            if i + 2 < len(messages):
+                next_msg = messages[i + 1]
+                after_next = messages[i + 2]
+
+                # Check for: ToolReturn followed by TextPart
+                if (any(isinstance(part, ToolReturnPart) for part in next_msg.parts) and
+                    any(isinstance(part, TextPart) for part in after_next.parts)):
+                    # Complete sequence found - keep all three
+                    filtered.extend([msg, next_msg, after_next])
+                    i += 3
+                    has_complete_sequence = True
+
+            # If incomplete, skip the tool call and any following tool return
+            if not has_complete_sequence:
+                # Skip this tool call
+                i += 1
+                # If next is a tool return for this call, skip it too
+                if i < len(messages) and any(isinstance(part, ToolReturnPart) for part in messages[i].parts):
+                    i += 1
+                continue
+        else:
+            # Not a tool call - keep the message
+            filtered.append(msg)
+            i += 1
+
+    return filtered
