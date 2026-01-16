@@ -47,13 +47,17 @@ def dm_history_processor(messages: list[ModelMessage]) -> list[ModelMessage]:
     """Keep recent conversation turns with tool pair preservation.
 
     This processor:
+    - Filters out RetryPromptPart messages (they can have nil content)
     - Limits to last 20 messages for token efficiency
     - Preserves tool call/return pairs
-
-    NOTE: Do NOT filter messages here! The processor is called during agent
-    execution and must maintain proper message structure for Pydantic AI.
     """
-    # Apply length limit only
+    # FIRST: Filter out retry prompts (they can cause nil content errors)
+    messages = [
+        msg for msg in messages
+        if not any(isinstance(part, RetryPromptPart) for part in msg.parts)
+    ]
+
+    # THEN: Apply length limit
     if len(messages) <= 20:
         return messages
 
@@ -77,14 +81,42 @@ def dm_history_processor(messages: list[ModelMessage]) -> list[ModelMessage]:
 
 
 def filter_retry_prompts(messages: list[ModelMessage]) -> list[ModelMessage]:
-    """Filter out RetryPromptPart messages from completed agent runs.
+    """Filter out internal Pydantic AI messages that cause Ollama errors.
 
-    Use this AFTER agent.run() completes, not during execution.
+    Removes:
+    - RetryPromptPart messages (retry attempts)
+    - ToolCallPart messages (internal tool invocations)
+    - ToolReturnPart messages (internal tool results)
+
+    These are Pydantic AI's internal messages and should not be sent to Ollama.
+    Only keep user prompts and model text responses.
     """
-    return [
-        msg for msg in messages
-        if not any(isinstance(part, RetryPromptPart) for part in msg.parts)
-    ]
+    from pydantic_ai import UserPromptPart, TextPart
+
+    filtered = []
+    for msg in messages:
+        # Skip retry prompts
+        if any(isinstance(part, RetryPromptPart) for part in msg.parts):
+            continue
+
+        # Skip tool calls (these cause nil content errors)
+        if any(isinstance(part, ToolCallPart) for part in msg.parts):
+            continue
+
+        # Skip tool returns (these cause nil content errors)
+        if any(isinstance(part, ToolReturnPart) for part in msg.parts):
+            continue
+
+        # Only keep messages with user prompts or model text responses
+        has_valid_content = any(
+            isinstance(part, (UserPromptPart, TextPart))
+            for part in msg.parts
+        )
+
+        if has_valid_content:
+            filtered.append(msg)
+
+    return filtered
 
 
 def filter_incomplete_tool_sequences(messages: list[ModelMessage]) -> list[ModelMessage]:

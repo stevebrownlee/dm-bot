@@ -5,10 +5,10 @@ Uses pydantic-settings for type-safe configuration with environment variable sup
 All settings can be overridden via environment variables or .env file.
 """
 
-from typing import Optional, List
+from typing import Optional
 from pathlib import Path
-from pydantic import Field, field_validator, SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     """
 
     ollama_openai_base_url: str = Field(
-        default="http://localhost:11434/v1",
+        default="http://localhost:11434",
         description="Ollama OpenAI-compatible endpoint",
     )
 

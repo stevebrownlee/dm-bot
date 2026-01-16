@@ -1,21 +1,25 @@
 """Dungeon Master Bot - Main agent implementation."""
-import tools
 from pydantic_ai import Agent
+from dotenv import load_dotenv
 from models import GameDependencies, GameState, PlayerStats, WorldState
-from history_processors import dm_history_processor, filter_retry_prompts
+from history_processors import filter_retry_prompts
 from game_state import auto_save, load_game
 from model_settings import get_adaptive_settings, GameMode
 
+load_dotenv(override=True)
 
 dm_agent: Agent[GameDependencies, GameState] = Agent(
-    'ollama:mistral-nemo:latest',
+    'ollama:qwen3:30b',
     deps_type=GameDependencies,
     output_type=GameState,
-    retries=5,
-    history_processors=[dm_history_processor],
+    retries=2,
     instructions="""You are an experienced and creative Dungeon Master for a D&D-style text adventure.
 
-CRITICAL: You MUST ALWAYS respond with a JSON object containing exactly these three fields:
+CRITICAL JSON OUTPUT RULES:
+- You MUST respond with ONLY a raw JSON object
+- DO NOT wrap the JSON in markdown code blocks (no ```json or ```)
+- DO NOT add any text before or after the JSON
+- The JSON must contain exactly these three fields:
 {
   "narrative": "string (minimum 50 characters - be descriptive and vivid!)",
   "player_health": number (integer between 0-100),
@@ -57,6 +61,8 @@ OUTPUT FIELD REQUIREMENTS:
 - 'player_health': Integer 0-100 (reflect damage/healing in your narrative)
 - 'dice_rolls': Empty array [] if no dice, or array of DiceRoll objects if dice were used
 - When player_health < 20: narrative MUST include urgency words like 'danger', 'critical', 'desperate'
+- Only JSON output - NO extra commentary or text outside the JSON structure
+- Do not start prepend the JSON string with [TOOL_CALLS] or any other markers
 
 When to use tools:
 - Use `roll_dice` for any random outcome (attacks, saves, skill checks, etc.)
@@ -312,101 +318,23 @@ def run_game_loop(
             model_settings = get_adaptive_settings(
                 player_stats=game_deps.player_stats,
                 world_state=game_deps.world_state,
-                mode=GameMode.EXPLORATION  # TODO: Could detect mode from player input
+                mode=GameMode.EXPLORATION
+            )
+            # Force JSON response format for Ollama compatibility
+            model_settings['response_format'] = {'type': 'json_object'}
+
+            # Run the agent
+            result = dm_agent.run_sync(
+                player_input,
+                message_history=conversation_history,
+                deps=game_deps,
+                instructions=dynamic_instructions,
+                model_settings=model_settings
             )
 
-            # DEBUG: Inspect conversation history
-            if len(conversation_history) > 0:
-                print(f"\n[DEBUG] History has {len(conversation_history)} messages")
-                for i, msg in enumerate(conversation_history):
-                    print(f"\n[DEBUG] Message {i}:")
-                    print(f"  kind: {msg.kind}")
-                    print(f"  parts: {len(msg.parts) if hasattr(msg, 'parts') else 'N/A'}")
-                    if hasattr(msg, 'parts'):
-                        for j, part in enumerate(msg.parts):
-                            part_type = type(part).__name__
-                            print(f"    Part {j}: {part_type}")
-                            # Print first 100 chars of content if it exists
-                            if hasattr(part, 'content'):
-                                content_preview = str(part.content)[:100]
-                                print(f"      content: {content_preview}...")
-                            if hasattr(part, 'part_kind'):
-                                print(f"      part_kind: {part.part_kind}")
-            # Run the agent
-            try:
-                result = dm_agent.run_sync(
-                    player_input,
-                    message_history=conversation_history,
-                    deps=game_deps,
-                    instructions=dynamic_instructions,
-                    model_settings=model_settings
-                )
-            except Exception as e:
-                print(f"\n[DEBUG] Exception details: {type(e).__name__}: {e}")
-                print(f"[DEBUG] History length at error: {len(conversation_history)}")
-
-                # Deep dive into exception to find model output
-                print("\n" + "="*60)
-                print("🔍 DETAILED ERROR ANALYSIS")
-                print("="*60)
-
-                # Check for cause chain
-                if hasattr(e, '__cause__') and e.__cause__:
-                    print(f"\n[CAUSE] {type(e.__cause__).__name__}: {e.__cause__}")
-                    cause = e.__cause__
-
-                    # For UnexpectedModelBehavior, dig into retry errors
-                    if hasattr(cause, 'attempts'):
-                        attempts = getattr(cause, 'attempts')
-                        print(f"\n[ATTEMPTS] Number of attempts: {len(attempts)}")
-                        for i, attempt in enumerate(attempts[-3:], 1):  # Last 3 attempts
-                            print(f"\n--- Attempt {i} ---")
-                            if hasattr(attempt, 'error'):
-                                print(f"Error: {getattr(attempt, 'error')}")
-                            if hasattr(attempt, 'data'):
-                                print(f"Data received: {getattr(attempt, 'data')}")
-                            if hasattr(attempt, 'content'):
-                                print(f"Content: {getattr(attempt, 'content')}")
-
-                    # Check nested cause
-                    if hasattr(cause, '__cause__'):
-                        nested = getattr(cause, '__cause__')
-                        if nested:
-                            print(f"\n[NESTED CAUSE] {type(nested).__name__}: {nested}")
-
-                            # Try to extract validation errors
-                            if hasattr(nested, 'errors') and callable(getattr(nested, 'errors', None)):
-                                try:
-                                    errors = getattr(nested, 'errors')()
-                                    print(f"\n[VALIDATION ERRORS]")
-                                    for err in errors:
-                                        print(f"  - {err}")
-                                except:
-                                    pass
-
-                # Try various attributes that might contain the raw response
-                for attr in ['content', 'data', 'response', 'raw_response', 'text']:
-                    if hasattr(e, attr):
-                        try:
-                            value = getattr(e, attr)
-                            if value:
-                                print(f"\n[RAW {attr.upper()}]")
-                                print(str(value)[:1000])  # First 1000 chars
-                        except:
-                            pass
-
-                print("\n" + "="*60 + "\n")
-                raise
-
-            print(f"\n[DEBUG] Agent output type: {type(result.output)}")
-            print(f"[DEBUG] Output data: {result.output}\n")
-
-            # Update conversation history - only filter retry prompts
-            # Let Pydantic AI handle tool sequences naturally
-            all_messages = result.all_messages()
-            conversation_history = filter_retry_prompts(all_messages)
-
-            print(f"[DEBUG] All: {len(all_messages)}, After filtering: {len(conversation_history)}")
+            # Update conversation history and filter out retry prompts
+            # Retry prompts have empty content and cause "nil content" errors
+            conversation_history = filter_retry_prompts(result.all_messages())
 
             # Extract the game state
             game_state: GameState = result.output

@@ -177,3 +177,5 @@ uv.lock
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+.claude/config.json
