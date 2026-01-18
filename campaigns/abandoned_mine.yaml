@@ -1,0 +1,330 @@
+name: "The Abandoned Mine"
+description: "A classic dungeon crawl through an abandoned mining complex now infested with goblins. Suitable for adventurers level 1-3."
+recommended_level: "1-3"
+difficulty_level: "medium"
+starting_room: "entrance"
+
+rooms:
+  entrance:
+    id: "entrance"
+    name: "Crumbling Mine Entrance"
+    description: "Wooden support beams frame a crumbling stone archway leading into darkness. Rusty mining equipment litters the ground, and the air is thick with the smell of damp earth and decay. Strange claw marks mar the wooden doorframe."
+    terrain: "dirt and gravel"
+    structures: ["wooden support beams", "stone archway", "abandoned mine cart"]
+    lighting: "dim"
+    atmosphere: "A cold draft carries the scent of something foul from within. Distant dripping echoes from deep in the mine."
+    exits:
+      north:
+        direction: "north"
+        target_room_id: "main_hall"
+        is_hidden: false
+        description: "Dark tunnel descending into the earth"
+        is_locked: false
+    features: ["rusty pickaxe (can be taken)", "wooden crates (empty)", "faded warning sign reading 'DANGER - KEEP OUT'"]
+    traps: []
+
+  main_hall:
+    id: "main_hall"
+    name: "Main Mining Chamber"
+    description: "A vast chamber with rusted mine cart tracks crisscrossing the stone floor. Rotting wooden support pillars show signs of age and neglect. The ceiling disappears into inky blackness above, and water drips from unseen cracks somewhere in the darkness. The tracks lead east and west into shadowy corridors."
+    terrain: "stone floor with metal tracks"
+    structures: ["mine cart tracks", "rotting support pillars", "collapsed tunnel (north wall - impassable)"]
+    lighting: "pitch black"
+    atmosphere: "Constant echo of dripping water. Musty smell of ancient stone and rot. Temperature drops noticeably compared to outside."
+    exits:
+      south:
+        direction: "south"
+        target_room_id: "entrance"
+        is_hidden: false
+        description: "Tunnel leading back to the entrance"
+        is_locked: false
+      east:
+        direction: "east"
+        target_room_id: "goblin_den"
+        is_hidden: false
+        description: "Narrow corridor with flickering torchlight visible in the distance"
+        is_locked: false
+      west:
+        direction: "west"
+        target_room_id: "treasure_room"
+        is_hidden: true
+        description: "Hidden door concealed behind a loose support beam - requires search to find"
+        is_locked: true
+        key_required: "iron_key"
+    features: ["broken mine cart with rusted wheels", "coil of old rope (50 feet, can be taken)"]
+    traps:
+      - id: "pit_trap_1"
+        type: "concealed pit trap"
+        difficulty_class: 15
+        damage: "2d6"
+        description: "A 10-foot section of floor near the center conceals a pit trap. The wooden planks give way to a 10-foot drop onto rusty iron spikes below."
+        is_triggered: false
+        save_type: "breath_weapon"
+
+  goblin_den:
+    id: "goblin_den"
+    name: "Goblin Living Quarters"
+    description: "Filthy sleeping mats made of moldy straw and rags cover the dirt floor. Half-eaten food scraps and gnawed bones are scattered everywhere. Crude symbols are smeared on the walls in dried mud and what might be blood. Weapon racks made from scavenged wood hold rusty blades and makeshift clubs. The overwhelming stench of unwashed bodies and rotting meat fills this small chamber, making your eyes water."
+    terrain: "dirt floor covered in refuse and bones"
+    structures: ["crude sleeping mats (6 total)", "makeshift weapon rack", "cooking fire pit with smoldering embers"]
+    lighting: "dim"
+    atmosphere: "Acrid smoke from the fire pit. Guttural snoring from the corners. Sickening smell of decay and filth. Rats scurry in the shadows."
+    exits:
+      west:
+        direction: "west"
+        target_room_id: "main_hall"
+        is_hidden: false
+        description: "Corridor back to the main chamber"
+        is_locked: false
+    features: ["food stores (spoiled meat and moldy bread)", "pile of cracked bones", "tribal banner made from a tattered cloak"]
+    traps: []
+
+  treasure_room:
+    id: "treasure_room"
+    name: "Old Storage Vault"
+    description: "Stone shelves line the rough-hewn walls, mostly empty except for layers of dust and thick cobwebs. A single iron-bound chest sits in the center of the room on the smooth stone floor, its lock glinting dully in any light. Carved runes on the walls suggest this was once used to store valuable mining equipment or ore samples."
+    terrain: "smooth stone floor, remarkably clean"
+    structures: ["stone shelves (empty)", "iron-bound chest (locked)", "carved runes on walls"]
+    lighting: "dark"
+    atmosphere: "Unnaturally still air. No sound penetrates here. Faint smell of old metal and stone dust."
+    exits:
+      east:
+        direction: "east"
+        target_room_id: "main_hall"
+        is_hidden: true
+        description: "Hidden door (same as the entrance from main hall)"
+        is_locked: false
+    features: ["ancient mining ledger (crumbling pages, mostly illegible)"]
+    traps: []
+
+initial_enemies:
+  goblin_guard:
+    id: "goblin_guard"
+    name: "Goblin Guard"
+    type: "goblin"
+    description: "A small, wiry creature standing about 3 feet tall with mottled green skin and beady yellow eyes that gleam with malice. It wears piecemeal leather armor scavenged from various sources and carries a notched short sword that it clearly knows how to use."
+    strength: 8
+    dexterity: 14
+    constitution: 10
+    intelligence: 10
+    wisdom: 9
+    charisma: 6
+    hit_dice: "1d8"
+    hit_points: 5
+    max_hit_points: 5
+    armor_class: 6
+    thac0: 20
+    attacks_per_round: 1
+    damage_per_attack: ["1d6"]
+    movement_rate: 60
+    special_abilities: ["infravision 60 feet", "sunlight sensitivity (-1 to attacks in bright light)"]
+    saving_throws:
+      paralyzation_poison_death_magic: 13
+      petrification_polymorph: 14
+      rod_staff_wand: 15
+      breath_weapon: 16
+      spell: 17
+    treasure_type: "Individual"
+    is_alive: true
+    current_room_id: "main_hall"
+    morale: 7
+
+  goblin_warrior_1:
+    id: "goblin_warrior_1"
+    name: "Goblin Warrior"
+    type: "goblin"
+    description: "A scarred goblin warrior with numerous battle wounds visible on its green skin. It wields a rusty scimitar and wears a dented metal helmet taken from some unfortunate adventurer."
+    strength: 9
+    dexterity: 13
+    constitution: 11
+    intelligence: 9
+    wisdom: 8
+    charisma: 5
+    hit_dice: "1d8"
+    hit_points: 6
+    max_hit_points: 6
+    armor_class: 6
+    thac0: 20
+    attacks_per_round: 1
+    damage_per_attack: ["1d6"]
+    movement_rate: 60
+    special_abilities: ["infravision 60 feet", "sunlight sensitivity (-1 to attacks in bright light)"]
+    saving_throws:
+      paralyzation_poison_death_magic: 13
+      petrification_polymorph: 14
+      rod_staff_wand: 15
+      breath_weapon: 16
+      spell: 17
+    treasure_type: "Individual"
+    is_alive: true
+    current_room_id: "goblin_den"
+    morale: 7
+
+  goblin_warrior_2:
+    id: "goblin_warrior_2"
+    name: "Goblin Warrior"
+    type: "goblin"
+    description: "A lean, quick-moving goblin with bright yellow eyes and sharp, pointed teeth. It carries a crude spear and moves with surprising agility."
+    strength: 7
+    dexterity: 15
+    constitution: 10
+    intelligence: 10
+    wisdom: 9
+    charisma: 6
+    hit_dice: "1d8"
+    hit_points: 4
+    max_hit_points: 4
+    armor_class: 6
+    thac0: 20
+    attacks_per_round: 1
+    damage_per_attack: ["1d6"]
+    movement_rate: 60
+    special_abilities: ["infravision 60 feet", "sunlight sensitivity (-1 to attacks in bright light)"]
+    saving_throws:
+      paralyzation_poison_death_magic: 13
+      petrification_polymorph: 14
+      rod_staff_wand: 15
+      breath_weapon: 16
+      spell: 17
+    treasure_type: "Individual"
+    is_alive: true
+    current_room_id: "goblin_den"
+    morale: 7
+
+  goblin_shaman:
+    id: "goblin_shaman"
+    name: "Grizelda the Goblin Shaman"
+    type: "goblin_shaman"
+    description: "An ancient, hunched goblin female draped in bone fetishes, dried rat skulls, and crow feathers. Her skin is darker green than the others, almost black in places. Her eyes glow with an eerie green light as she clutches a gnarled wooden staff topped with a pulsing green crystal. She mutters constantly in the goblin tongue, weaving minor magics."
+    strength: 7
+    dexterity: 12
+    constitution: 9
+    intelligence: 14
+    wisdom: 15
+    charisma: 8
+    hit_dice: "2d8"
+    hit_points: 9
+    max_hit_points: 9
+    armor_class: 8
+    thac0: 19
+    attacks_per_round: 1
+    damage_per_attack: ["1d4"]
+    movement_rate: 60
+    special_abilities:
+      - "infravision 60 feet"
+      - "can cast Cure Light Wounds once per day (heals 1d8 hit points)"
+      - "can cast Magic Missile twice per day (1d4+1 damage, never misses)"
+      - "can speak with rats and bats"
+    saving_throws:
+      paralyzation_poison_death_magic: 13
+      petrification_polymorph: 14
+      rod_staff_wand: 11
+      breath_weapon: 15
+      spell: 12
+    treasure_type: "Individual"
+    is_alive: true
+    current_room_id: "goblin_den"
+    morale: 9
+
+initial_treasure:
+  rusty_dagger:
+    id: "rusty_dagger"
+    name: "Rusty Dagger"
+    description: "A corroded iron blade with a cracked leather grip. Despite its poor condition, it still has a serviceable edge and could be used as a weapon in a pinch."
+    value: 2
+    type: "weapon"
+    location_room_id: "goblin_den"
+    location_description: "stuck in the makeshift weapon rack among other crude weapons"
+    weight: 1.0
+    is_hidden: false
+    search_dc: null
+    is_magical: false
+    magic_bonus: null
+    effect: null
+    requires: null
+    is_collected: false
+
+  coin_pouch:
+    id: "coin_pouch"
+    name: "Leather Coin Pouch"
+    description: "A small, worn leather pouch containing an assortment of copper and silver coins - the goblins' meager treasure hoard."
+    value: 15
+    type: "currency"
+    location_room_id: "goblin_den"
+    location_description: "hidden under one of the sleeping mats in the corner"
+    weight: 0.5
+    is_hidden: true
+    search_dc: 12
+    is_magical: false
+    magic_bonus: null
+    effect: null
+    requires: null
+    is_collected: false
+
+  iron_key:
+    id: "iron_key"
+    name: "Heavy Iron Key"
+    description: "A heavy iron key with strange runes etched into the shaft. It feels unnaturally cold to the touch, as if it draws heat from your hand. The key bears the mark of the old mining company."
+    value: 0
+    type: "quest_item"
+    location_room_id: "goblin_den"
+    location_description: "on a leather cord around the shaman's neck - must defeat her to obtain"
+    weight: 0.2
+    is_hidden: false
+    search_dc: null
+    is_magical: false
+    magic_bonus: null
+    effect: "Opens the hidden treasury vault in the main chamber"
+    requires: null
+    is_collected: false
+
+  chest_gold:
+    id: "chest_gold"
+    name: "Chest of Gold Coins"
+    description: "The iron-bound chest is filled with gold coins bearing the mark of the old mining company - payment for the miners that was never distributed after the mine was abandoned."
+    value: 100
+    type: "currency"
+    location_room_id: "treasure_room"
+    location_description: "inside the locked iron-bound chest in the center of the room"
+    weight: 10.0
+    is_hidden: false
+    search_dc: null
+    is_magical: false
+    magic_bonus: null
+    effect: null
+    requires: "iron_key"
+    is_collected: false
+
+  healing_potion:
+    id: "healing_potion"
+    name: "Potion of Healing"
+    description: "A small crystal vial containing glowing red liquid that swirls and churns on its own, as if alive. The glass is warm to the touch and the liquid gives off a faint, pleasant aroma like cinnamon and roses."
+    value: 50
+    type: "consumable"
+    location_room_id: "treasure_room"
+    location_description: "sitting on a stone shelf, untouched by dust or cobwebs"
+    weight: 0.5
+    is_hidden: false
+    search_dc: null
+    is_magical: true
+    magic_bonus: null
+    effect: "Restores 2d4+2 hit points when consumed"
+    requires: "iron_key"
+    is_collected: false
+
+  magic_dagger:
+    id: "magic_dagger"
+    name: "Dagger +1"
+    description: "An exquisitely crafted dagger with a gleaming silvered blade that never seems to dull. Runes of power are etched along the blade, and the pommel is set with a small sapphire. It feels perfectly balanced in your hand."
+    value: 200
+    type: "magic_item"
+    location_room_id: "treasure_room"
+    location_description: "hidden in a secret compartment in the bottom of the chest - requires search"
+    weight: 1.0
+    is_hidden: true
+    search_dc: 15
+    is_magical: true
+    magic_bonus: "+1"
+    effect: "+1 to attack and damage rolls, counts as magical for purposes of hitting creatures immune to normal weapons"
+    requires: "iron_key"
+    is_collected: false

@@ -6,6 +6,8 @@ dependencies = [
     "pydantic",
     "ollama",
     "pydantic-ai",
+    "pypdf>=6.6.0",
+    "chromadb>=1.4.1",
 ]
 
 

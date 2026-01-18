@@ -7,7 +7,7 @@ from datetime import datetime
 from pydantic_core import to_jsonable_python
 from pydantic_ai import ModelMessagesTypeAdapter, ModelMessage
 
-from models import GameDependencies, PlayerStats, WorldState
+from models import GameDependencies, PlayerStats, WorldState, CampaignData, CampaignState
 
 # Database configuration
 DB_PATH = Path(__file__).parent / "game-state.sqlite3"
@@ -17,6 +17,7 @@ CREATE_GAME_SESSIONS_TABLE = """
 CREATE TABLE IF NOT EXISTS game_sessions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id TEXT UNIQUE NOT NULL,
+    campaign_name TEXT,
     created_at TEXT NOT NULL,
     last_updated TEXT NOT NULL
 )
@@ -56,6 +57,23 @@ CREATE TABLE IF NOT EXISTS message_history (
 )
 """
 
+CREATE_CAMPAIGN_STATE_TABLE = """
+CREATE TABLE IF NOT EXISTS campaign_state (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL,
+    current_room_id TEXT NOT NULL,
+    visited_rooms TEXT NOT NULL,
+    discovered_exits TEXT NOT NULL,
+    defeated_enemies TEXT NOT NULL,
+    collected_treasure TEXT NOT NULL,
+    triggered_traps TEXT NOT NULL,
+    quest_flags TEXT NOT NULL,
+    active_enemy_health TEXT NOT NULL,
+    enemy_locations TEXT NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES game_sessions(session_id) ON DELETE CASCADE
+)
+"""
+
 CREATE_SESSION_INDEX = """
     CREATE INDEX IF NOT EXISTS idx_session_id
     ON message_history(session_id)
@@ -90,6 +108,7 @@ def init_database() -> None:
         conn.execute(CREATE_PLAYER_STATS_TABLE)
         conn.execute(CREATE_WORLD_STATE_TABLE)
         conn.execute(CREATE_MESSAGE_HISTORY_TABLE)
+        conn.execute(CREATE_CAMPAIGN_STATE_TABLE)
 
         # Create indexes for performance
         conn.execute(CREATE_SESSION_INDEX)
@@ -110,17 +129,22 @@ def save_game(
     player_stats: PlayerStats,
     world_state: WorldState,
     message_history: list[ModelMessage],
+    campaign_state: CampaignState | None = None,
+    campaign_name: str | None = None,
 ) -> None:
     """Save complete game state to SQLite database.
 
     Saves or updates a game session including player stats, world state,
-    and conversation history. Uses transactions to ensure atomicity.
+    conversation history, and optional campaign state. Uses transactions
+    to ensure atomicity.
 
     Args:
         session_id: Unique identifier for this game session
         player_stats: Current player character statistics
         world_state: Current state of the game world
         message_history: Complete conversation history from Pydantic AI
+        campaign_state: Optional campaign state (if using campaign system)
+        campaign_name: Optional campaign name to track which campaign is being played
 
     Raises:
         sqlite3.Error: If database operation fails
@@ -140,17 +164,17 @@ def save_game(
         existing_session = cursor.fetchone()
 
         if existing_session:
-            # Update existing session's last_updated timestamp
+            # Update existing session's last_updated timestamp (and campaign_name if provided)
             cursor.execute(
-                "UPDATE game_sessions SET last_updated = ? WHERE session_id = ?",
-                (timestamp, session_id),
+                "UPDATE game_sessions SET last_updated = ?, campaign_name = ? WHERE session_id = ?",
+                (timestamp, campaign_name, session_id),
             )
             logger.info(f"Updating existing session: {session_id}")
         else:
             # Create new session record
             cursor.execute(
-                "INSERT INTO game_sessions (session_id, created_at, last_updated) VALUES (?, ?, ?)",
-                (session_id, timestamp, timestamp),
+                "INSERT INTO game_sessions (session_id, campaign_name, created_at, last_updated) VALUES (?, ?, ?, ?)",
+                (session_id, campaign_name, timestamp, timestamp),
             )
             logger.info(f"Creating new session: {session_id}")
 
@@ -190,6 +214,33 @@ def save_game(
 
         logger.debug(f"Saved player stats and world state for session {session_id}")
 
+        # Save campaign state if provided
+        if campaign_state:
+            # Delete existing campaign state for this session
+            cursor.execute("DELETE FROM campaign_state WHERE session_id = ?", (session_id,))
+
+            # Convert sets and dicts to JSON
+            cursor.execute(
+                """INSERT INTO campaign_state
+                   (session_id, current_room_id, visited_rooms, discovered_exits,
+                    defeated_enemies, collected_treasure, triggered_traps, quest_flags,
+                    active_enemy_health, enemy_locations)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    session_id,
+                    campaign_state.current_room_id,
+                    json.dumps(list(campaign_state.visited_rooms)),
+                    json.dumps(list(campaign_state.discovered_exits)),
+                    json.dumps(list(campaign_state.defeated_enemies)),
+                    json.dumps(list(campaign_state.collected_treasure)),
+                    json.dumps(list(campaign_state.triggered_traps)),
+                    json.dumps(campaign_state.quest_flags),
+                    json.dumps(campaign_state.active_enemy_health),
+                    json.dumps(campaign_state.enemy_locations)
+                )
+            )
+            logger.debug(f"Saved campaign state for session {session_id}")
+
                 # Delete existing message history for this session
         cursor.execute("DELETE FROM message_history WHERE session_id = ?", (session_id,))
 
@@ -218,19 +269,25 @@ def save_game(
             conn.close()
         raise
 
-def load_game(session_id: str) -> tuple[GameDependencies, list[ModelMessage]]:
+def load_game(
+    session_id: str,
+    campaign_data: CampaignData | None = None
+) -> tuple[GameDependencies, list[ModelMessage], str | None]:
     """Load a complete game state from SQLite database.
 
     Retrieves all game state data for a session and reconstructs it into
-    the format needed by the Pydantic AI agent.
+    the format needed by the Pydantic AI agent. If campaign_data is provided,
+    also loads and restores campaign state.
 
     Args:
         session_id: Unique identifier for the game session to load
+        campaign_data: Optional static campaign data (if using campaign system)
 
     Returns:
         A tuple containing:
-        - GameDependencies: Reconstructed game dependencies with player stats and world state
-        - list[Any]: Restored message history in Pydantic AI format
+        - GameDependencies: Reconstructed game dependencies with player stats, world state, and optional campaign state
+        - list[ModelMessage]: Restored message history in Pydantic AI format
+        - str | None: Campaign name if this session was using a campaign
 
     Raises:
         ValueError: If session_id doesn't exist in the database
@@ -242,9 +299,9 @@ def load_game(session_id: str) -> tuple[GameDependencies, list[ModelMessage]]:
         conn.row_factory = sqlite3.Row  # This allows us to access columns by name
         cursor = conn.cursor()
 
-        # Check if session exists
+        # Check if session exists and get campaign_name
         cursor.execute(
-            "SELECT id FROM game_sessions WHERE session_id = ?",
+            "SELECT id, campaign_name FROM game_sessions WHERE session_id = ?",
             (session_id,)
         )
         session = cursor.fetchone()
@@ -253,7 +310,8 @@ def load_game(session_id: str) -> tuple[GameDependencies, list[ModelMessage]]:
             conn.close()
             raise ValueError(f"Session '{session_id}' not found in database")
 
-        logger.info(f"Loading session: {session_id}")
+        campaign_name = session['campaign_name']
+        logger.info(f"Loading session: {session_id}, campaign: {campaign_name}")
 
         # Load player stats
         cursor.execute(
@@ -325,17 +383,47 @@ def load_game(session_id: str) -> tuple[GameDependencies, list[ModelMessage]]:
 
         logger.info(f"Loaded {len(restored_history)} messages for session {session_id}")
 
+        # Load campaign state if campaign_data was provided
+        campaign_state = None
+        if campaign_data:
+            cursor.execute(
+                """SELECT current_room_id, visited_rooms, discovered_exits,
+                          defeated_enemies, collected_treasure, triggered_traps,
+                          quest_flags, active_enemy_health, enemy_locations
+                   FROM campaign_state
+                   WHERE session_id = ?""",
+                (session_id,)
+            )
+            campaign_row = cursor.fetchone()
+
+            if campaign_row:
+                # Reconstruct CampaignState from JSON
+                campaign_state = CampaignState(
+                    current_room_id=campaign_row['current_room_id'],
+                    visited_rooms=set(json.loads(campaign_row['visited_rooms'])),
+                    discovered_exits=set(json.loads(campaign_row['discovered_exits'])),
+                    defeated_enemies=set(json.loads(campaign_row['defeated_enemies'])),
+                    collected_treasure=set(json.loads(campaign_row['collected_treasure'])),
+                    triggered_traps=set(json.loads(campaign_row['triggered_traps'])),
+                    quest_flags=json.loads(campaign_row['quest_flags']),
+                    active_enemy_health=json.loads(campaign_row['active_enemy_health']),
+                    enemy_locations=json.loads(campaign_row['enemy_locations'])
+                )
+                logger.debug(f"Loaded campaign state: room={campaign_state.current_room_id}")
+
         # Create GameDependencies from loaded data
         game_deps = GameDependencies(
             player_stats=player_stats,
-            world_state=world_state
+            world_state=world_state,
+            campaign_data=campaign_data,
+            campaign_state=campaign_state
         )
 
         # Close database connection
         conn.close()
 
-        # Return tuple of dependencies and message history
-        return game_deps, restored_history
+        # Return tuple of dependencies, message history, and campaign_name
+        return game_deps, restored_history, campaign_name
 
 
 
@@ -349,7 +437,9 @@ def auto_save(
     player_stats: PlayerStats,
     world_state: WorldState,
     message_history: list[ModelMessage],
-    session_id: str | None = None
+    session_id: str | None = None,
+    campaign_state: CampaignState | None = None,
+    campaign_name: str | None = None
 ) -> str:
     """Automatically save game state with session ID generation.
 
@@ -362,6 +452,8 @@ def auto_save(
         world_state: Current state of the game world
         message_history: Complete conversation history
         session_id: Optional session ID. If None, generates a new UUID
+        campaign_state: Optional campaign state (if using campaign system)
+        campaign_name: Optional campaign name being played
 
     Returns:
         The session_id used for saving (either provided or generated)
@@ -374,7 +466,9 @@ def auto_save(
         session_id=session_id,
         player_stats=player_stats,
         world_state=world_state,
-        message_history=message_history
+        message_history=message_history,
+        campaign_state=campaign_state,
+        campaign_name=campaign_name
     )
 
     return session_id

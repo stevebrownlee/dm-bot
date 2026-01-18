@@ -1,0 +1,188 @@
+name: "The Cursed Crypt"
+description: "A small tomb complex haunted by restless undead. Recommended for 2-3 level 1 characters."
+recommended_level: "1-2"
+difficulty_level: "easy"
+starting_room: "crypt_entrance"
+opening_narrative: "The village elder approaches you in the town square, worry etched on his weathered face. 'The dead no longer rest in the old crypt,' he says quietly. 'Strange lights and sounds emanate from within. The townsfolk are terrified. Will you investigate?'"
+
+home_base:
+  name: "Millhaven"
+  description: "A peaceful farming village of about 150 souls, surrounded by fields and orchards. The villagers are simple, hardworking folk who rarely see trouble."
+
+  key_locations:
+    - name: "The Harvest Moon Inn"
+      type: "tavern"
+      description: "A cozy inn run by the widow Marta Greenfield. Known for hearty stews and warm bread."
+      services: ["food and lodging", "local gossip", "warm beds (3 gp/night)"]
+
+    - name: "Thornton's General Goods"
+      type: "general_store"
+      description: "A small shop selling basic supplies and tools for farming and adventuring."
+      services: ["basic equipment", "rations and rope", "buys minor treasures"]
+
+  notable_npcs:
+    - name: "Elder Harvin"
+      role: "village_elder"
+      description: "The wise and respected leader of Millhaven, concerned about the disturbances at the crypt."
+
+    - name: "Marta Greenfield"
+      role: "innkeeper"
+      description: "A motherly widow who treats all guests like family and knows everyone's business."
+
+  available_services:
+    shopping:
+      - category: "supplies"
+        items: ["rations x7 (5 gp)", "rope 50ft (1 gp)", "torches x10 (1 gp)", "waterskin (1 gp)"]
+        vendor: "Thornton's General Goods"
+      - category: "basic weapons"
+        items: ["dagger (2 gp)", "spear (1 gp)", "club (free - borrow from villagers)"]
+        vendor: "Thornton's General Goods"
+
+    lodging:
+      - type: "common room"
+        cost: 1
+        description: "Straw bed in shared room above the stables"
+      - type: "private room"
+        cost: 3
+        description: "Clean room with comfortable bed and washbasin"
+
+  rumors:
+    - "The crypt belonged to Lord Darkmore, who was said to practice dark magic before his death."
+    - "Some say the disturbances began when grave robbers broke into the tomb last month."
+    - "Old Widow Crane claims she saw a green glow coming from the crypt at midnight."
+
+rooms:
+  crypt_entrance:
+    id: "crypt_entrance"
+    name: "Crypt Entrance"
+    description: "Stone steps descend into darkness. Ancient script carved above the entrance warns of curses and eternal guardians. The air is cold and stale."
+    terrain: "stone steps"
+    lighting: "dark"
+    structures: ["stone archway", "warning inscriptions"]
+    atmosphere: "Cold. Smell of old earth and decay. Absolute silence."
+    exits:
+      down: "burial_chamber"
+    features: ["warning inscription (can be read)"]
+    traps: []
+
+  burial_chamber:
+    id: "burial_chamber"
+    name: "Main Burial Chamber"
+    description: "Four stone sarcophagi dominate this circular chamber. Wall niches hold the remains of lesser nobles. Faded murals depict funeral rites. A heavy door leads west."
+    terrain: "stone floor"
+    lighting: "pitch black"
+    structures: ["stone sarcophagi (4)", "wall niches", "faded murals"]
+    atmosphere: "Oppressive silence. Unnaturally cold. Faint sound of breathing."
+    exits:
+      up: "crypt_entrance"
+      west:
+        direction: "west"
+        target_room_id: "treasure_vault"
+        is_locked: true
+        key_required: "bronze_key"
+        description: "Sealed iron door with a keyhole"
+    features: ["murals depicting funeral rites"]
+    traps:
+      - id: "poison_gas_trap"
+        type: "poison gas"
+        difficulty_class: 14
+        damage: "1d6"
+        description: "Green gas erupts from holes in the sarcophagus"
+        save_type: "poison"
+        is_triggered: false
+
+  treasure_vault:
+    id: "treasure_vault"
+    name: "Treasure Vault"
+    description: "A small stone chamber holds the true burial goods. Gold coins spill from broken urns, and weapons line the walls. A skeleton in ornate armor sits on a stone throne."
+    terrain: "smooth stone"
+    lighting: "dark"
+    structures: ["stone throne", "weapon racks"]
+    atmosphere: "Dry air. No sound. Glint of gold in torchlight."
+    exits:
+      east:
+        direction: "east"
+        target_room_id: "burial_chamber"
+        description: "Back to the burial chamber"
+    features: ["ornate skeleton on throne", "burial goods scattered about"]
+    traps: []
+
+initial_enemies:
+  skeleton_guardian:
+    id: "skeleton_guardian"
+    name: "Skeleton Guardian"
+    type: "skeleton"
+    description: "An animated skeleton warrior clad in rusted chainmail. Its eyes glow with eerie green light, and it wields a corroded longsword."
+    strength: 10
+    dexterity: 12
+    constitution: 10
+    intelligence: 3
+    wisdom: 10
+    charisma: 3
+    hit_dice: "1d8"
+    hit_points: 5
+    max_hit_points: 5
+    armor_class: 7
+    thac0: 19
+    attacks_per_round: 1
+    damage_per_attack: ["1d8"]
+    movement_rate: 120
+    special_abilities:
+      - "immune to sleep and charm"
+      - "takes half damage from slashing/piercing weapons"
+      - "vulnerable to bludgeoning weapons"
+    saving_throws:
+      paralyzation_poison_death_magic: 14
+      petrification_polymorph: 16
+      rod_staff_wand: 15
+      breath_weapon: 17
+      spell: 16
+    treasure_type: "None"
+    current_room_id: "burial_chamber"
+    morale: 12
+    is_alive: true
+
+initial_treasure:
+  bronze_key:
+    id: "bronze_key"
+    name: "Bronze Key"
+    description: "An ancient bronze key with a skull-shaped handle. It's cold to the touch."
+    value: 0
+    type: "quest_item"
+    location_room_id: "burial_chamber"
+    location_description: "clutched in the skeleton's bony hand - must defeat it"
+    weight: 0.2
+    is_hidden: false
+    is_magical: false
+    effect: "Opens the sealed treasure vault"
+    is_collected: false
+
+  gold_coins:
+    id: "gold_coins"
+    name: "Ancient Gold Coins"
+    description: "A collection of gold coins bearing the mark of a long-dead kingdom"
+    value: 75
+    type: "currency"
+    location_room_id: "treasure_vault"
+    location_description: "spilled from broken urns on the floor"
+    weight: 0.8
+    is_hidden: false
+    requires: "bronze_key"
+    is_magical: false
+    is_collected: false
+
+  longsword_plus_one:
+    id: "longsword_plus_one"
+    name: "Longsword +1"
+    description: "A well-balanced longsword with a faint magical aura. The blade never tarnishes."
+    value: 200
+    type: "magic_item"
+    location_room_id: "treasure_vault"
+    location_description: "mounted on the wall behind the throne"
+    weight: 4.0
+    is_hidden: false
+    requires: "bronze_key"
+    is_magical: true
+    magic_bonus: "+1"
+    effect: "+1 to attack and damage rolls"
+    is_collected: false
