@@ -1,0 +1,160 @@
+# Thorin Ironforge - Level 1 Fighter
+# Example AD&D 1st Edition Fighter character
+
+name: "Thorin Ironforge"
+player_name: "Example Player"
+character_class: "fighter"
+level: 1
+race: "dwarf"
+alignment: "lawful_good"
+experience_points: 0
+next_level_xp: 2000
+
+# Dwarf fighter with good strength
+ability_scores:
+  strength: 17
+  exceptional_strength: null  # Only for STR 18
+  intelligence: 10
+  wisdom: 12
+  dexterity: 13
+  constitution: 16  # Dwarves get +1 CON
+  charisma: 9
+
+# Fighter in chainmail with shield (AC 4)
+armor_class: 4
+hit_points: 12
+max_hit_points: 12
+hit_dice: "1d10"
+thac0: 20
+
+saving_throws:
+  paralyzation_poison_death_magic: 14
+  petrification_polymorph: 15
+  rod_staff_wand: 16
+  breath_weapon: 17
+  spell: 17
+
+movement_rate: 90  # 90' for dwarves (short legs)
+encumbrance: "moderate"
+
+weapon_proficiencies:
+  - "battle axe"
+  - "warhammer"
+  - "short sword"
+  - "hand axe"
+
+non_weapon_proficiencies: []
+
+thief_abilities: null
+
+equipment:
+  armor:
+    name: "chainmail"
+    armor_class_bonus: 5  # AC 5 improvement (10 -> 5)
+    weight: 30
+  shield:
+    name: "medium shield"
+    armor_class_bonus: 1  # AC 1 improvement (5 -> 4)
+    weight: 10
+  weapons:
+    - name: "battle axe"
+      damage: "1d8"
+      damage_vs_large: "1d8"
+      weight: 7
+      magical_bonus: 0
+    - name: "hand axe"
+      damage: "1d6"
+      damage_vs_large: "1d6"
+      weight: 5
+      magical_bonus: 0
+    - name: "warhammer"
+      damage: "1d4+1"
+      damage_vs_large: "1d4"
+      weight: 5
+      magical_bonus: 0
+
+carried_items:
+  - name: "backpack"
+    quantity: 1
+    weight: 2
+  - name: "rope, 50 ft"
+    quantity: 1
+    weight: 5
+  - name: "iron spikes"
+    quantity: 12
+    weight: 6
+  - name: "hammer"
+    quantity: 1
+    weight: 2
+  - name: "torches"
+    quantity: 6
+    weight: 6
+  - name: "tinderbox"
+    quantity: 1
+    weight: 1
+  - name: "rations (1 week)"
+    quantity: 1
+    weight: 7
+  - name: "waterskin"
+    quantity: 1
+    weight: 1
+  - name: "whetstone"
+    quantity: 1
+    weight: 1
+
+treasure:
+  platinum_pieces: 0
+  gold_pieces: 15
+  electrum_pieces: 0
+  silver_pieces: 40
+  copper_pieces: 23
+  gems: []
+  jewelry: []
+  magic_items: []
+
+spells: null  # Fighters don't cast spells
+
+class_features:
+  - "Exceptional strength potential (if STR 18)"
+  - "Can use any weapon and armor"
+  - "Multiple attacks vs weak creatures at higher levels"
+  - "Dwarven resistance to magic (+CON bonus to saves vs magic)"
+  - "Infravision 60 feet"
+  - "Detection abilities (slopes, traps, new construction) in underground settings"
+
+special_abilities:
+  - "Infravision 60 feet"
+  - "Detect grade or slope in passage (1-3 on 1d6)"
+  - "Detect new tunnel construction (1-3 on 1d6)"
+  - "Detect sliding/shifting walls or rooms (1-3 on 1d6)"
+  - "Detect stonework traps, pits, and deadfalls (1-3 on 1d6)"
+  - "+1 to hit vs orcs, half-orcs, goblins, and hobgoblins"
+  - "Giants, ogres, and titans have -4 to hit dwarves"
+
+appearance:
+  age: 52
+  height: "4'2\""
+  weight: "165 lbs"
+  eye_color: "brown"
+  hair_color: "red-brown with streaks of gray"
+  distinguishing_features: "Long braided beard with iron rings, scar across right eyebrow, calloused hands from forge work"
+
+personality:
+  traits: ["Stubborn", "Loyal to clan", "Honorable", "Gruff but fair"]
+  ideals: "Honor and craftsmanship above all"
+  bonds: "Sworn to reclaim his clan's ancestral stronghold from goblins"
+  flaws: "Stubborn pride, holds grudges against elves, drinks heavily"
+
+background: "Thorin grew up in the Iron Peak clan, learning the ways of both war and forge. When goblins overran his ancestral home, he escaped with a handful of survivors. Now he seeks to grow strong enough to reclaim what was lost and restore his family's honor. He is a skilled warrior and craftsman, traditional in his ways, and deeply suspicious of magic."
+
+languages:
+  - "Common"
+  - "Dwarvish"
+  - "Gnome"
+  - "Goblin"
+  - "Orc"
+
+hirelings: []
+followers: []
+
+notes: "Thorin prefers axes and hammers. He is saving gold to hire mercenaries for the eventual assault on his clan's stronghold. He trusts actions more than words and values companions who fight beside him rather than behind him."

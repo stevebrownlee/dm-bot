@@ -1,13 +1,14 @@
 """Dungeon Master Bot - Main agent implementation."""
+from pathlib import Path
 from pydantic_ai import Agent
 from dotenv import load_dotenv
-from pathlib import Path
-from models import GameDependencies, GameState, PlayerStats, WorldState
+from models import GameDependencies, GameState, PlayerStats, WorldState, CharacterSheet
 from history_processors import filter_retry_prompts
 from game_state import auto_save, load_game
 from model_settings import get_adaptive_settings, GameMode
 from pdf_rag import RuleBookRAG
 from campaign_manager import CampaignManager
+from character_sheet_manager import CharacterSheetManager
 
 load_dotenv(override=True)
 
@@ -15,7 +16,6 @@ load_dotenv(override=True)
 try:
     rule_rag = RuleBookRAG()
     rules_available = rule_rag.get_collection_stats()["total_chunks"] > 0
-    print(f"📚 Rule books loaded: {rules_available} ({rule_rag.get_collection_stats()['total_chunks']} chunks)")
 except Exception as e:
     print(f"⚠️  Rule books not available: {e}")
     rule_rag = None
@@ -219,6 +219,44 @@ def get_dynamic_instructions(deps: GameDependencies, player_input: str = "") -> 
 
     return "\n".join(instructions)
 
+def convert_character_to_player_stats(character: CharacterSheet) -> PlayerStats:
+    """Convert a CharacterSheet to PlayerStats for game compatibility.
+
+    Args:
+        character: The character sheet loaded from YAML
+
+    Returns:
+        PlayerStats object for use in game dependencies
+    """
+    # Build inventory list from character's carried items and equipment
+    inventory = []
+
+    # Add weapons
+    if character.equipment.weapons:
+        for weapon in character.equipment.weapons:
+            bonus_str = f" {weapon.magical_bonus:+d}" if weapon.magical_bonus else ""
+            inventory.append(f"{weapon.name}{bonus_str}")
+
+    # Add armor
+    if character.equipment.armor:
+        inventory.append(character.equipment.armor.name)
+
+    # Add shield
+    if character.equipment.shield:
+        inventory.append(character.equipment.shield.name)
+
+    # Add carried items
+    for item in character.carried_items:
+        inventory.append(f"{item.name} (x{item.quantity})")
+
+    return PlayerStats(
+        name=character.name,
+        health=character.hit_points,
+        max_health=character.max_hit_points,
+        level=character.level,
+        inventory=inventory
+    )
+
 def main_menu() -> None:
     """Display main menu and handle game initialization."""
     print("=" * 60)
@@ -348,8 +386,6 @@ def start_game() -> None:
                 campaign_data = campaign_manager.load_campaign(campaign_name)
                 campaign_state = campaign_manager.create_initial_state()
                 print(f"✅ Campaign loaded: {campaign_data.name}")
-                if campaign_data.description:
-                    print(f"📝 {campaign_data.description}")
             except Exception as e:
                 print(f"❌ Error loading campaign: {e}")
                 print("Starting freeform adventure instead...\n")
@@ -357,17 +393,65 @@ def start_game() -> None:
                 campaign_data = None
                 campaign_state = None
 
+    # Character selection
+    print("\n👤 Character Selection:")
+    print("0. Create generic adventurer")
+
+    char_manager = CharacterSheetManager()
+    available_characters = char_manager.list_available_characters()
+
+    selected_character = None
+    player_stats = None
+
+    if available_characters:
+        for i, char_name in enumerate(available_characters, 1):
+            print(f"{i}. {char_name}")
+
+        # Select character
+        while True:
+            choice = input(f"\nSelect a character (0-{len(available_characters)}): ").strip()
+            try:
+                idx = int(choice)
+                if idx == 0:
+                    # Use generic adventurer
+                    print("\n🌟 Creating generic adventurer...")
+                    player_stats = PlayerStats(
+                        name="Adventurer",
+                        health=100,
+                        max_health=100,
+                        level=1
+                    )
+                    break
+                elif 1 <= idx <= len(available_characters):
+                    char_name = available_characters[idx - 1]
+                    print(f"\n⚔️  Loading character: {char_name}...")
+                    try:
+                        selected_character = char_manager.load_character(char_name)
+                        if selected_character:
+                            # Display character summary
+                            print("\n" + char_manager.display_character_summary(selected_character))
+                            # Convert to PlayerStats
+                            player_stats = convert_character_to_player_stats(selected_character)
+                            print(f"✅ {selected_character.name} is ready for adventure!\n")
+                            break
+                    except Exception as e:
+                        print(f"❌ Error loading character: {e}")
+                        print("Please select another character.")
+            except ValueError:
+                pass
+            print("Invalid choice. Try again.")
+    else:
+        print("No character sheets found. Using generic adventurer.")
+        player_stats = PlayerStats(
+            name="Adventurer",
+            health=100,
+            max_health=100,
+            level=1
+        )
+
     print("\nType your actions, and I'll narrate your adventure!")
     print("Type 'suspend' to save and exit.")
     print("Type 'quit' to exit without saving.\n")
-
-    # Initialize game state
-    player_stats = PlayerStats(
-        name="Adventurer",
-        health=100,
-        max_health=100,
-        level=1
-    )
 
     # Set world state based on campaign or default
     if campaign_data and campaign_state and campaign_manager:

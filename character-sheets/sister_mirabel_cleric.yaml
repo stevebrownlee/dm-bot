@@ -1,0 +1,190 @@
+# Sister Mirabel - Level 1 Cleric
+# Example AD&D 1st Edition Cleric character
+
+name: "Sister Mirabel"
+player_name: "Example Player"
+character_class: "cleric"
+level: 1
+race: "human"
+alignment: "lawful_good"
+experience_points: 0
+next_level_xp: 1500
+
+# Cleric with high wisdom for spellcasting
+ability_scores:
+  strength: 12
+  exceptional_strength: null
+  intelligence: 11
+  wisdom: 16  # High wisdom for bonus spells
+  dexterity: 10
+  constitution: 14
+  charisma: 13
+
+# Cleric in chainmail with shield (AC 4)
+armor_class: 4
+hit_points: 9
+max_hit_points: 9
+hit_dice: "1d8"
+thac0: 20
+
+saving_throws:
+  paralyzation_poison_death_magic: 10
+  petrification_polymorph: 13
+  rod_staff_wand: 14
+  breath_weapon: 16
+  spell: 15
+
+movement_rate: 120
+encumbrance: "moderate"
+
+weapon_proficiencies:
+  - "mace"
+  - "staff"
+  - "sling"
+
+non_weapon_proficiencies:
+  - "Healing"
+  - "Religion"
+
+thief_abilities: null
+
+equipment:
+  armor:
+    name: "chainmail"
+    armor_class_bonus: 5
+    weight: 30
+  shield:
+    name: "wooden shield"
+    armor_class_bonus: 1
+    weight: 10
+  weapons:
+    - name: "mace"
+      damage: "1d6+1"
+      damage_vs_large: "1d6"
+      weight: 10
+      magical_bonus: 0
+    - name: "sling"
+      damage: "1d4"
+      damage_vs_large: "1d4"
+      weight: 0
+      magical_bonus: 0
+
+carried_items:
+  - name: "backpack"
+    quantity: 1
+    weight: 2
+  - name: "holy symbol (wooden)"
+    quantity: 1
+    weight: 0
+  - name: "prayer book"
+    quantity: 1
+    weight: 3
+  - name: "holy water (vials)"
+    quantity: 3
+    weight: 1
+  - name: "sling bullets"
+    quantity: 20
+    weight: 5
+  - name: "torches"
+    quantity: 4
+    weight: 4
+  - name: "rations (1 week)"
+    quantity: 1
+    weight: 7
+  - name: "waterskin"
+    quantity: 1
+    weight: 1
+  - name: "healer's kit (bandages, herbs)"
+    quantity: 1
+    weight: 2
+
+treasure:
+  platinum_pieces: 0
+  gold_pieces: 22
+  electrum_pieces: 0
+  silver_pieces: 15
+  copper_pieces: 8
+  gems: []
+  jewelry: []
+  magic_items: []
+
+# Clerics get 1 first-level spell at level 1
+spells:
+  spells_per_day:
+    level_1: 1
+    level_2: 0
+    level_3: 0
+    level_4: 0
+    level_5: 0
+    level_6: 0
+    level_7: 0
+    level_8: 0
+    level_9: 0
+
+  known_spells:
+    level_1:
+      - "Cure Light Wounds"
+      - "Detect Evil"
+      - "Detect Magic"
+      - "Protection from Evil"
+      - "Purify Food & Drink"
+      - "Remove Fear"
+      - "Resist Cold"
+      - "Bless"
+    level_2: []
+    level_3: []
+    level_4: []
+    level_5: []
+    level_6: []
+    level_7: []
+    level_8: []
+    level_9: []
+
+  prepared_spells:
+    level_1:
+      - "Cure Light Wounds"
+    level_2: []
+    level_3: []
+    level_4: []
+    level_5: []
+    level_6: []
+    level_7: []
+    level_8: []
+    level_9: []
+
+class_features:
+  - "Turn undead (affects skeletons, zombies, ghouls, etc.)"
+  - "Divine spellcasting (wisdom-based)"
+  - "Can use all armor and shields"
+  - "Limited to blunt weapons only (no swords, bows)"
+  - "Bonus spells for high wisdom"
+
+special_abilities:
+  - "Turn undead - 2d6 roll on turning table"
+  - "Detect evil intent within 60 feet (with concentration)"
+  - "Divine favor - may call upon deity in times of extreme need"
+
+appearance:
+  age: 28
+  height: "5'6\""
+  weight: "140 lbs"
+  eye_color: "blue"
+  hair_color: "blonde, worn in simple braid"
+  distinguishing_features: "Silver holy symbol worn prominently, gentle smile, calluses on hands from gripping mace and caring for the sick"
+
+personality:
+  traits: ["Compassionate", "Courageous", "Patient", "Devout"]
+  ideals: "To bring healing and hope to those who suffer, and to stand as a shield against darkness"
+  bonds: "Sworn to serve the Temple of the Dawn, protector of the weak and innocent"
+  flaws: "Sometimes too trusting, places excessive faith in redemption even for hardened villains"
+
+background: "Mirabel was orphaned young and raised in the Temple of the Dawn. She showed early aptitude for healing and devotion, taking her holy orders at age 20. For eight years she served in the temple, tending to the sick and learning the ways of combat to defend those who cannot defend themselves. Now she ventures forth to bring the light of her faith to dark places, heal the afflicted, and smite the undead who desecrate the natural order."
+
+languages:
+  - "Common"
+  - "Celestial"
+
+hirelings: []
+followers: []
+
+notes: "Sister Mirabel's turning undead ability is her greatest asset in dangerous dungeons. She typically prepares Cure Light Wounds as her spell, ready to heal wounded companions. She believes in giving enemies a chance to surrender, but shows no mercy to undead abominations. Her mace is her primary weapon, blessed by her temple's high priest."

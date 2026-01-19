@@ -1,0 +1,171 @@
+# Shadowfoot - Level 1 Thief
+# Example AD&D 1st Edition Thief character
+
+name: "Shadowfoot"
+player_name: "Example Player"
+character_class: "thief"
+level: 1
+race: "halfling"
+alignment: "neutral_good"
+experience_points: 0
+next_level_xp: 1250
+
+# Halfling thief with high dexterity
+ability_scores:
+  strength: 10
+  exceptional_strength: null
+  intelligence: 12
+  wisdom: 11
+  dexterity: 17  # Halflings get +1 DEX
+  constitution: 13
+  charisma: 14
+
+# Thief in leather armor (AC 7, improved by DEX to AC 4)
+armor_class: 4  # 8 (leather) - 3 (DEX 17 bonus) - 1 (small size)
+hit_points: 5
+max_hit_points: 5
+hit_dice: "1d6"
+thac0: 20
+
+saving_throws:
+  paralyzation_poison_death_magic: 13
+  petrification_polymorph: 12
+  rod_staff_wand: 14
+  breath_weapon: 16
+  spell: 15
+
+movement_rate: 90  # 90' for halflings
+encumbrance: "light"
+
+weapon_proficiencies:
+  - "short sword"
+  - "dagger"
+  - "short bow"
+
+non_weapon_proficiencies:
+  - "Streetwise"
+
+# Thief abilities at level 1 (halflings get bonuses)
+thief_abilities:
+  pick_pockets: 35  # 30% base + 5% racial
+  open_locks: 30  # 25% base + 5% racial
+  find_remove_traps: 25  # 20% base + 5% racial
+  move_silently: 25  # 15% base + 10% racial
+  hide_in_shadows: 20  # 10% base + 10% racial
+  hear_noise: 20  # 15% base + 5% racial
+  climb_walls: 92  # 87% base + 5% racial
+  read_languages: 0  # Not until level 4
+
+equipment:
+  armor:
+    name: "leather armor"
+    armor_class_bonus: 2  # AC 8 improvement
+    weight: 15
+  shield: null  # Thieves don't typically use shields
+  weapons:
+    - name: "short sword"
+      damage: "1d6"
+      damage_vs_large: "1d8"
+      weight: 3
+      magical_bonus: 0
+    - name: "dagger"
+      damage: "1d4"
+      damage_vs_large: "1d3"
+      weight: 1
+      magical_bonus: 0
+    - name: "short bow"
+      damage: "1d6"
+      damage_vs_large: "1d6"
+      weight: 2
+      magical_bonus: 0
+
+carried_items:
+  - name: "backpack (small)"
+    quantity: 1
+    weight: 1
+  - name: "thieves' tools"
+    quantity: 1
+    weight: 1
+  - name: "crowbar (small)"
+    quantity: 1
+    weight: 2
+  - name: "grappling hook"
+    quantity: 1
+    weight: 4
+  - name: "rope, 50 ft (silk)"
+    quantity: 1
+    weight: 4
+  - name: "arrows"
+    quantity: 20
+    weight: 3
+  - name: "oil flask"
+    quantity: 2
+    weight: 2
+  - name: "rations (1 week)"
+    quantity: 1
+    weight: 7
+  - name: "waterskin"
+    quantity: 1
+    weight: 1
+  - name: "chalk"
+    quantity: 1
+    weight: 0
+  - name: "mirror (small steel)"
+    quantity: 1
+    weight: 0
+  - name: "caltrops"
+    quantity: 1
+    weight: 2
+
+treasure:
+  platinum_pieces: 0
+  gold_pieces: 18
+  electrum_pieces: 0
+  silver_pieces: 22
+  copper_pieces: 15
+  gems: []
+  jewelry: []
+  magic_items: []
+
+spells: null  # Thieves don't cast spells
+
+class_features:
+  - "Backstab - x2 damage when attacking from behind"
+  - "Thief skills (Pick Pockets, Open Locks, Find/Remove Traps, Move Silently, Hide in Shadows, Hear Noise, Climb Walls)"
+  - "Read Languages (at 4th level)"
+  - "Use magic items from scrolls (at higher levels)"
+  - "Limited armor (leather or lighter only)"
+  - "Halfling size bonuses to AC and thief skills"
+
+special_abilities:
+  - "Backstab: +4 to hit from behind, x2 damage multiplier"
+  - "Thief abilities improve with level"
+  - "Halfling resistance to magic (+CON bonus vs magic)"
+  - "Halfling stealth bonuses (+10% to Move Silently and Hide in Shadows)"
+  - "+3 bonus to attacks with slings and thrown weapons"
+  - "90% resistance to poison"
+
+appearance:
+  age: 32
+  height: "3'2\""
+  weight: "42 lbs"
+  eye_color: "green"
+  hair_color: "sandy brown, curly"
+  distinguishing_features: "Perpetually barefoot, wears dark clothing, has a mischievous grin, carries multiple hidden daggers"
+
+personality:
+  traits: ["Clever", "Quick-witted", "Curious", "Cautious"]
+  ideals: "Freedom above all - no one should be imprisoned or enslaved"
+  bonds: "Owes a life debt to a human merchant who saved him from the law; protects halfling communities from exploitation"
+  flaws: "Cannot resist a locked door or closed chest; kleptomaniac tendencies"
+
+background: "Shadowfoot grew up on the streets of a large human city, orphaned young and forced to survive by his wits. He learned the art of thievery from necessity, becoming skilled at picking pockets and locks. Despite his profession, he has a code of honor - he steals from the wealthy and corrupt, never from the poor. He was caught once, and would have hanged if not for a kind merchant who spoke for him. Now he adventures to repay that debt, using his skills to help those who cannot help themselves. He dreams of one day establishing a safe haven for halfling refugees and orphans."
+
+languages:
+  - "Common"
+  - "Halfling"
+
+hirelings: []
+followers: []
+
+notes: "Shadowfoot excels at scouting and disabling traps. His backstab ability makes him deadly when surprising foes. His high Dex gives him excellent AC for a first-level character. The halfling bonuses to stealth make him ideal for sneaking ahead of the party. His climb walls ability (92%) means he can scale most surfaces reliably. He's most vulnerable in direct combat and relies on hiding, surprise attacks, and clever tactics rather than toe-to-toe fighting."

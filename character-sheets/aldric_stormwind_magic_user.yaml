@@ -1,0 +1,185 @@
+# Aldric Stormwind - Level 1 Magic-User
+# Example AD&D 1st Edition Magic-User character
+
+name: "Aldric Stormwind"
+player_name: "Example Player"
+character_class: "magic_user"
+level: 1
+race: "human"
+alignment: "neutral"
+experience_points: 0
+next_level_xp: 2500
+
+# Magic-User with high intelligence for spellcasting
+ability_scores:
+  strength: 9
+  exceptional_strength: null
+  intelligence: 17  # High intelligence for bonus spells and chance to learn
+  wisdom: 13
+  dexterity: 14
+  constitution: 11
+  charisma: 12
+
+# Magic-User in no armor (AC 10), relies on Dexterity
+armor_class: 9  # 10 base - 1 for DEX 14
+hit_points: 4
+max_hit_points: 4
+hit_dice: "1d4"
+thac0: 20
+
+saving_throws:
+  paralyzation_poison_death_magic: 14
+  petrification_polymorph: 13
+  rod_staff_wand: 11
+  breath_weapon: 15
+  spell: 12
+
+movement_rate: 120
+encumbrance: "light"
+
+weapon_proficiencies:
+  - "dagger"
+  - "staff"
+
+non_weapon_proficiencies:
+  - "Reading/Writing"
+  - "Ancient History"
+
+thief_abilities: null
+
+equipment:
+  armor: null  # Magic-Users cannot wear armor
+  shield: null
+  weapons:
+    - name: "dagger"
+      damage: "1d4"
+      damage_vs_large: "1d3"
+      weight: 1
+      magical_bonus: 0
+    - name: "staff (quarterstaff)"
+      damage: "1d6"
+      damage_vs_large: "1d6"
+      weight: 4
+      magical_bonus: 0
+
+carried_items:
+  - name: "backpack"
+    quantity: 1
+    weight: 2
+  - name: "spellbook"
+    quantity: 1
+    weight: 3
+  - name: "spell components pouch"
+    quantity: 1
+    weight: 1
+  - name: "ink and quill"
+    quantity: 1
+    weight: 0
+  - name: "parchment sheets"
+    quantity: 10
+    weight: 0
+  - name: "torches"
+    quantity: 3
+    weight: 3
+  - name: "rations (1 week)"
+    quantity: 1
+    weight: 7
+  - name: "waterskin"
+    quantity: 1
+    weight: 1
+  - name: "belt pouch"
+    quantity: 1
+    weight: 0
+  - name: "scroll case"
+    quantity: 1
+    weight: 0
+
+treasure:
+  platinum_pieces: 0
+  gold_pieces: 8
+  electrum_pieces: 0
+  silver_pieces: 35
+  copper_pieces: 12
+  gems: []
+  jewelry: []
+  magic_items: []
+
+# Magic-Users start with 1 spell at level 1
+spells:
+  spells_per_day:
+    level_1: 1
+    level_2: 0
+    level_3: 0
+    level_4: 0
+    level_5: 0
+    level_6: 0
+    level_7: 0
+    level_8: 0
+    level_9: 0
+
+  known_spells:
+    level_1:
+      - "Read Magic"
+      - "Sleep"
+      - "Magic Missile"
+      - "Charm Person"
+    level_2: []
+    level_3: []
+    level_4: []
+    level_5: []
+    level_6: []
+    level_7: []
+    level_8: []
+    level_9: []
+
+  prepared_spells:
+    level_1:
+      - "Sleep"  # Powerful at level 1 - affects 2d4 HD of creatures
+    level_2: []
+    level_3: []
+    level_4: []
+    level_5: []
+    level_6: []
+    level_7: []
+    level_8: []
+    level_9: []
+
+class_features:
+  - "Arcane spellcasting (intelligence-based)"
+  - "Learns spells through study and research"
+  - "Cannot wear armor or use shields"
+  - "Limited to simple weapons (dagger, staff, dart, sling)"
+  - "Bonus spells for high intelligence"
+  - "Chance to learn spells based on intelligence"
+  - "Can create magical items at higher levels"
+
+special_abilities:
+  - "Read Magic - can decipher magical writings"
+  - "Magical research - can research new spells"
+  - "Scribe scrolls - can create spell scrolls with time and materials"
+
+appearance:
+  age: 24
+  height: "5'10\""
+  weight: "155 lbs"
+  eye_color: "grey with flecks of gold"
+  hair_color: "black with a single white streak"
+  distinguishing_features: "Always carries his spellbook, ink-stained fingers, arcane symbols tattooed on left forearm, slightly singed eyebrows from a misfired experiment"
+
+personality:
+  traits: ["Curious", "Analytical", "Reserved", "Ambitious"]
+  ideals: "Knowledge is power; the secrets of magic must be unlocked and mastered"
+  bonds: "Apprenticed to the sage Mordenkaine who vanished mysteriously; seeks to discover what happened to his master"
+  flaws: "Overconfident in his magical abilities, sometimes reckless with untested spells, socially awkward"
+
+background: "Aldric showed magical aptitude at a young age, accidentally levitating objects when emotional. He was apprenticed to the renowned wizard Mordenkaine at age 16. For eight years he studied under the master, learning the fundamental arts of magic. When Mordenkaine disappeared during an expedition to the Shadowfell, Aldric inherited his master's tower (and debts). Now he adventures to gather knowledge, gold, and clues about his master's fate while honing his arcane powers."
+
+languages:
+  - "Common"
+  - "Elvish"
+  - "Draconic"  # Language of magic
+
+hirelings: []
+followers: []
+
+notes: "Aldric's Sleep spell is devastatingly effective at level 1, capable of instantly incapacitating groups of weak enemies (goblins, kobolds, 1 HD creatures). He stays behind the party's front line, conserving his single spell for critical moments. His Intelligence of 17 gives him an 85% chance to learn new spells he encounters. He is always seeking new spells for his spellbook and magical knowledge. His low HP makes him extremely vulnerable in melee combat."

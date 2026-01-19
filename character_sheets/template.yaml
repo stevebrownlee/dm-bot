@@ -1,0 +1,187 @@
+# AD&D 1st Edition Character Sheet Template
+# This template demonstrates all available fields for creating character sheets
+
+# ========== BASIC INFORMATION ==========
+name: "Character Name"
+player_name: "Player Name"  # Optional - who is playing this character
+character_class: "fighter"  # fighter, cleric, magic_user, thief, ranger, paladin, druid, etc.
+level: 1
+race: "human"  # human, elf, dwarf, halfling, half-elf, gnome, half-orc
+alignment: "neutral_good"  # lawful_good, neutral_good, chaotic_good, lawful_neutral, true_neutral, chaotic_neutral, lawful_evil, neutral_evil, chaotic_evil
+experience_points: 0
+next_level_xp: 2000  # XP needed for next level
+
+# ========== ABILITY SCORES ==========
+# AD&D 1e uses 3d6 for each ability (range 3-18)
+# Exceptional strength (18/xx) only for fighters, paladins, rangers
+ability_scores:
+  strength: 10
+  exceptional_strength: null  # For fighters with STR 18: null, or 01-100 (e.g., "18/76")
+  intelligence: 10
+  wisdom: 10
+  dexterity: 10
+  constitution: 10
+  charisma: 10
+
+# ========== COMBAT STATISTICS ==========
+armor_class: 10  # Lower is better in AD&D 1e (10 = no armor, 0 = plate & shield)
+hit_points: 8
+max_hit_points: 8
+hit_dice: "1d10"  # Varies by class
+thac0: 20  # To Hit Armor Class 0 (varies by class and level)
+
+# ========== SAVING THROWS ==========
+# AD&D 1e has 5 saving throw categories
+saving_throws:
+  paralyzation_poison_death_magic: 14
+  petrification_polymorph: 15
+  rod_staff_wand: 16
+  breath_weapon: 17
+  spell: 17
+
+# ========== MOVEMENT ==========
+movement_rate: 120  # Base movement in feet per turn (120 = normal)
+encumbrance: "light"  # light, moderate, heavy - affects movement
+
+# ========== PROFICIENCIES & SKILLS ==========
+# Weapon proficiencies (varies by class)
+weapon_proficiencies:
+  - "long sword"
+  - "short sword"
+  - "bow"
+
+# Non-weapon proficiencies (optional in 1e, common in later editions)
+non_weapon_proficiencies: []
+
+# Thief abilities (only for thief/assassin class)
+thief_abilities:
+  pick_pockets: null
+  open_locks: null
+  find_remove_traps: null
+  move_silently: null
+  hide_in_shadows: null
+  hear_noise: null
+  climb_walls: null
+  read_languages: null
+
+# ========== EQUIPMENT & TREASURE ==========
+equipment:
+  armor:
+    name: "leather armor"
+    armor_class_bonus: 2  # AC improvement from this armor
+    weight: 15
+  shield:
+    name: "small shield"
+    armor_class_bonus: 1
+    weight: 5
+  weapons:
+    - name: "long sword"
+      damage: "1d8"
+      damage_vs_large: "1d12"
+      weight: 4
+      magical_bonus: 0
+    - name: "short bow"
+      damage: "1d6"
+      damage_vs_large: "1d6"
+      weight: 2
+      magical_bonus: 0
+
+carried_items:
+  - name: "backpack"
+    quantity: 1
+    weight: 2
+  - name: "rope, 50 ft"
+    quantity: 1
+    weight: 5
+  - name: "torches"
+    quantity: 6
+    weight: 6
+  - name: "rations (1 week)"
+    quantity: 1
+    weight: 7
+  - name: "waterskin"
+    quantity: 1
+    weight: 1
+
+treasure:
+  platinum_pieces: 0
+  gold_pieces: 20
+  electrum_pieces: 0
+  silver_pieces: 30
+  copper_pieces: 50
+  gems: []
+  jewelry: []
+  magic_items: []
+
+# ========== SPELLS (for spellcasters) ==========
+# Only applicable to clerics, magic-users, druids, etc.
+spells:
+  spells_per_day:  # By spell level
+    level_1: 0
+    level_2: 0
+    level_3: 0
+    level_4: 0
+    level_5: 0
+    level_6: 0
+    level_7: 0
+    level_8: 0
+    level_9: 0
+
+  known_spells:  # Spells in spellbook or prayer list
+    level_1: []
+    level_2: []
+    level_3: []
+    level_4: []
+    level_5: []
+    level_6: []
+    level_7: []
+    level_8: []
+    level_9: []
+
+  prepared_spells:  # Currently memorized spells
+    level_1: []
+    level_2: []
+    level_3: []
+    level_4: []
+    level_5: []
+    level_6: []
+    level_7: []
+    level_8: []
+    level_9: []
+
+# ========== CLASS FEATURES & SPECIAL ABILITIES ==========
+class_features:
+  - "Bonus hit points from high constitution"
+  - "Infravision 60 feet (if applicable to race)"
+  - "Resistance to sleep and charm (if elf)"
+
+special_abilities: []
+
+# ========== CHARACTER DETAILS ==========
+appearance:
+  age: 25
+  height: "5'10\""
+  weight: "165 lbs"
+  eye_color: "brown"
+  hair_color: "black"
+  distinguishing_features: "Scar across left cheek"
+
+personality:
+  traits: ["Brave", "Loyal"]
+  ideals: "Honor and duty"
+  bonds: "Sworn to protect the village"
+  flaws: "Quick to anger"
+
+background: "Grew up in a small farming village. Trained as a militia member before becoming an adventurer."
+
+# ========== LANGUAGES ==========
+languages:
+  - "Common"
+  - "Elvish"
+
+# ========== HIRELINGS & FOLLOWERS ==========
+hirelings: []
+followers: []
+
+# ========== NOTES ==========
+notes: "Ready for adventure!"
