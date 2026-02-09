@@ -1,1 +1,2 @@
-python dm_bot.py
+#!/bin/bash
+python -m dungeon_master

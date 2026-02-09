@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "conport": {
+      "command": "/Users/chortlehoort/Code/Steve/tools/MCP/conport/.venv/bin/python",
+      "args": [
+        "-m",
+        "context_portal_mcp.main",
+        "--mode",
+        "stdio",
+        "--workspace_id",
+        "${workspaceFolder}"
+      ],
+      "alwaysAllow": [
+        "get_active_context",
+        "update_active_context",
+        "update_product_context",
+        "log_decision",
+        "log_progress",
+        "link_conport_items",
+        "log_system_pattern",
+        "get_decisions",
+        "get_progress",
+        "get_system_patterns",
+        "get_custom_data",
+        "log_custom_data",
+        "batch_log_items",
+        "update_progress",
+        "search_custom_data_value_fts",
+        "get_recent_activity_summary",
+        "list_files",
+        "get_conport_schema",
+        "get_product_context"
+      ]
+    }
+  }
+}

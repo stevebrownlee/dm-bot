@@ -7,10 +7,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 # Import the functions we're testing
-from game_state import init_database, save_game, load_game, auto_save, DB_PATH
+from dungeon_master.persistence import init_database, save_game, load_game, auto_save, DB_PATH
 
 # Import models for creating test data
-from models import PlayerStats, WorldState, GameDependencies
+from dungeon_master.models import PlayerStats, WorldState, GameDependencies
 
 # Import Pydantic AI types for message history
 from pydantic_ai import ModelMessage

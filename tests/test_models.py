@@ -1,5 +1,5 @@
 import pytest
-from models import PlayerStats, WorldState, DiceRoll, GameState, GameDependencies
+from dungeon_master.models import PlayerStats, WorldState, DiceRoll, GameState, GameDependencies
 from pydantic import ValidationError
 
 

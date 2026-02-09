@@ -5,7 +5,7 @@ Tests for output validators to ensure they work as expected.
 import pytest
 from pydantic_ai import Agent, ModelRetry, RunContext
 from pydantic_ai.models.test import TestModel
-from models import GameState, GameDependencies, PlayerStats, WorldState
+from dungeon_master.models import GameState, GameDependencies, PlayerStats, WorldState
 
 
 def test_simple_validator_passes():

@@ -1,6 +1,6 @@
 from pydantic_ai import ModelMessage, UserPromptPart, ModelRequest, SystemPromptPart, TextPart, RetryPromptPart
 from pydantic_ai.messages import ToolReturnPart, ToolCallPart
-from history_processors import dm_history_processor, summarize_old_messages, filter_retry_prompts
+from dungeon_master.history import dm_history_processor, summarize_old_messages, filter_retry_prompts
 
 def create_mock_message(content: str) -> ModelMessage:
     """Create a simple user message."""

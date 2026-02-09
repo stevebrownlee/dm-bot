@@ -1,17 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "dungeon-master-bot"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic",
+    "pydantic-settings",
     "ollama",
     "pydantic-ai",
     "pypdf>=6.6.0",
     "chromadb>=1.4.1",
+    "python-dotenv",
+    "pyyaml",
 ]
 
+[project.scripts]
+dungeon-master = "dungeon_master.agent:main_menu"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dungeon_master"]
 
 [dependency-groups]
 dev = [
     "pytest>=9.0.1",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

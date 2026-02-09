@@ -6,6 +6,7 @@
 context_portal/
 memory-bank/
 saved_games/
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

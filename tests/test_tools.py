@@ -1,8 +1,8 @@
 import pytest
 from dataclasses import dataclass
 from pydantic_ai import RunContext
-from models import PlayerStats, WorldState, GameDependencies, DiceRoll
-from tools import roll_dice, calculate_damage, manage_inventory, update_health
+from dungeon_master.models import PlayerStats, WorldState, GameDependencies, DiceRoll
+from dungeon_master import tools roll_dice, calculate_damage, manage_inventory, update_health
 
 
 # Helper function to create a mock RunContext
